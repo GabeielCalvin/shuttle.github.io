@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulir Pemesanan Sewa Mobil</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+        }
+        .form-container {
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            background-color: #fff;
+        }
+        .form-container h2 {
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+        .form-group input[type="submit"] {
+            background-color: #ff7300;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .form-group input[type="submit"]:hover {
+            background-color: #e66900;
+        }
+        .logo, .car-image {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .logo img, .car-image img {
+            max-width: 100%;
+            height: auto;
+        }
+        .payment-methods img {
+            width: 50px;
+            height: auto;
+            margin: 5px;
+            cursor: pointer;
+        }
+        .checkbox-group label {
+            display: inline-block;
+            margin-right: 10px;
+        }
+        .responsive {
+            max-width: 100%;
+            height: auto;
+        }
+        @media (max-width: 600px) {
+            .form-container {
+                padding: 10px;
+            }
+            .car-image {
+                float: right;
+                margin-left: 10px;
+                margin-bottom: 10px;
+            }
+        }
+    </style>
+    <script>
+        function calculatePrice() {
+            const manualRate = 275000; // Harga per hari untuk manual
+            const maticRate = 300000; // Harga per hari untuk matic
+            const startDate = new Date(document.getElementById('tanggal_sewa').value);
+            const endDate = new Date(document.getElementById('tanggal_kembali').value);
+            const timeDiff = endDate.getTime() - startDate.getTime();
+            const days = Math.ceil(timeDiff / (1000 * 3600 * 24)); // Mencari selisih hari dan membulatkannya ke atas
+
+            let rate = 0;
+            if (document.getElementById('manual').checked) {
+                rate = manualRate;
+            } else if (document.getElementById('matic').checked) {
+                rate = maticRate;
+            }
+
+            if (days >= 0) {
+                document.getElementById('harga').value = days * rate;
+            } else {
+                document.getElementById('harga').value = 0;
+            }
+        }
+
+        function selectPaymentMethod(method) {
+            document.getElementById('jenis_pembayaran').value = method;
+        }
+
+        function doPost(e) {
+            // Your Google Apps Script doPost function (not detailed here)
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('order-form').addEventListener('submit', function(event) {
+                event.preventDefault();
+
+                var formData = new FormData(this);
+
+                fetch(this.action, {
+                    method: 'POST',
+                    body: formData,
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.result === 'success') {
+                        this.reset();
+                        alert('Form berhasil dikirim');
+                        window.location.href = 'index.html';
+                    } else {
+                        alert('Error submitting form');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error submitting form');
+                });
+            });
+
+            document.getElementById('tanggal_sewa').addEventListener('change', calculatePrice);
+            document.getElementById('tanggal_kembali').addEventListener('change', calculatePrice);
+            document.getElementById('manual').addEventListener('change', calculatePrice);
+            document.getElementById('matic').addEventListener('change', calculatePrice);
+        });
+    </script>
+</head>
+<body>
+    <div class="form-container">
+        <div class="logo">
+            <img src="bali.png" alt="Logo Perusahaan" class="responsive">
+        </div>
+        <form id="order-form" method="post" action="https://script.google.com/macros/s/AKfycbwIsiDI9AVxwvxBT8AyWWQN6N05VbM8RQCMGS1rIl7z8HK5fUHz4UanZ2pSEZigajIL/exec">
+            <div class="car-image">
+                <img src="ayla.png" alt="Gambar Mobil" class="responsive">
+            </div>
+            <h2>Formulir Pemesanan Sewa Mobil</h2>
+            <div class="form-group">
+                <label for="nama">Nama Penyewa:</label>
+                <input type="text" id="nama" name="nama" required>
+            </div>
+            <div class="form-group">
+                <label for="nomor_telepon">Nomor Telepon:</label>
+                <input type="tel" id="nomor_telepon" name="nomor_telepon" required>
+            </div>
+            <div class="form-group">
+                <label for="tanggal_sewa">Tanggal Sewa:</label>
+                <input type="date" id="tanggal_sewa" name="tanggal_sewa" required>
+            </div>
+            <div class="form-group">
+                <label for="tanggal_kembali">Tanggal Kembali:</label>
+                <input type="date" id="tanggal_kembali" name="tanggal_kembali" required>
+            </div>
+            <div class="form-group">
+                <label for="alamat_pengiriman">Alamat Pengiriman:</label>
+                <input type="text" id="alamat_pengiriman" name="alamat_pengiriman" required>
+            </div>
+            <div class="form-group checkbox-group">
+                <label>Pilih Transmisi:</label>
+                <label><input type="radio" id="manual" name="transmisi" value="manual" required> Manual</label>
+                <label><input type="radio" id="matic" name="transmisi" value="matic" required> Matic</label>
+            </div>
+            <div class="form-group">
+                <label for="harga">Harga (Rp):</label>
+                <input type="number" id="harga" name="harga" readonly>
+            </div>
+            <div class="form-group">
+                <label for="deposit">Deposit (Rp):</label>
+                <input type="number" id="deposit" name="deposit" required>
+            </div>
+            <div class="form-group">
+                <label for="jenis_pembayaran">Jenis Pembayaran:</label>
+                <h2>Semua pembayaran melalui transfer</h2>
+                <h4>BANK BCA</h4>
+                <h4>Nama rekening: Fitri Wijayanti</h4>
+                <h4>Nomor rekening: 1234567890</h4>
+                <p>Pengiriman mobil akan dilakukan setelah penyewa melakukan pembayaran deposit.</p>
+                <input type="hidden" id="jenis_pembayaran" name="jenis_pembayaran" required>
+                <div class="payment-methods">
+                    <img src="debit.png" alt="Debit" onclick="selectPaymentMethod('debit')">
+                    <img src="credit.png" alt="Credit" onclick="selectPaymentMethod('credit')">
+                    <img src="paypal.png" alt="PayPal" onclick="selectPaymentMethod('paypal')">
+                </div>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Pesan Sekarang">
+            </div>
+        </form>
+        <p style="text-align: center;">Terima kasih telah memesan di perusahaan kami!</p>
+    </div>
+</body>
+</html>
